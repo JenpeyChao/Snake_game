@@ -2,7 +2,6 @@ import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
 import java.util.Random;
-import java.util.TimerTask;
 
 import javax.swing.JPanel;
 
@@ -24,10 +23,11 @@ public class GamePanel extends JPanel implements ActionListener{
 	int foodEaten;
 	int foodX;
 	int foodY;
-	int shieldX;
-	int shieldY;
-	int slowMoX;
-	int slowMoY;
+	int shieldX, shieldY;
+	int slowMoX, slowMoY;
+	int pointMultiX, pointMultiY;
+	boolean pointMulti = false;
+	boolean pointMultied = false;
 	boolean shield = false;
 	boolean shielded = false;
 	boolean slowMo = false;
@@ -38,8 +38,9 @@ public class GamePanel extends JPanel implements ActionListener{
 	boolean running = false;
 	Random random;
 	Timer timer;
-	Timer timer1;
-	Timer timer2;
+	Timer shieldTime;
+	Timer slowMoTimer;
+	Timer pointMultiTimer;
 	String difficulty;
 	
 	GamePanel(String difficulty) {
@@ -63,7 +64,7 @@ public class GamePanel extends JPanel implements ActionListener{
 
 		switch (num){
 			case 0:
-				timer1 = new Timer(10, new ActionListener() {
+				shieldTime = new Timer(10, new ActionListener() {
 					@Override
 					public void actionPerformed(ActionEvent e) {
 						if (startTime[0] < 0) {
@@ -73,13 +74,13 @@ public class GamePanel extends JPanel implements ActionListener{
 						long clockTime = now - startTime[0];
 						if (clockTime >= duration) {
 							shielded = false;
-							timer1.stop();
+							shieldTime.stop();
 						}
 					}
 				});
 				break;
 			case 1:
-				timer2 = new Timer(10, new ActionListener() {
+				slowMoTimer = new Timer(10, new ActionListener() {
 					@Override
 					public void actionPerformed(ActionEvent e) {
 						if (startTime[0] < 0) {
@@ -89,18 +90,38 @@ public class GamePanel extends JPanel implements ActionListener{
 						long clockTime = now - startTime[0];
 						if (clockTime >= duration) {
 							timer.setDelay(timer.getInitialDelay());
-							timer2.stop();
+							slowMoTimer.stop();
 						}
 					}
 				});
+				break;
+			case 2:
+				long multiplierDuration = duration * 2;
+				pointMultiTimer = new Timer(10, new ActionListener() {
+					@Override
+					public void actionPerformed(ActionEvent e) {
+						if (startTime[0] < 0) {
+							startTime[0] = System.currentTimeMillis();
+						}
+						long now = System.currentTimeMillis();
+						long clockTime = now - startTime[0];
+						if (clockTime >= multiplierDuration) {
+							pointMultied = false;
+							pointMultiTimer.stop();
+						}
+					}
+				});
+				break;
 		}
 	}
 	public void play() {
 		addFood();
 		addShield();
+		addPointMulti();
 		if (!(difficulty.equals(Difficulty.Easy))) addSlowMo();
 		countDown(0);
 		countDown(1);
+		countDown(2);
 		running = true;
 		
 		int delay = 100;
@@ -156,7 +177,11 @@ public class GamePanel extends JPanel implements ActionListener{
 	public void checkFood() {
 		if(x[0] == foodX && y[0] == foodY) {
 			length++;
-			foodEaten++;
+			if (pointMultied){
+				foodEaten+=2;
+			} else {
+				foodEaten++;
+			}
 			addFood();
 			if (!(shield || shielded)){
 				addShield();
@@ -164,26 +189,35 @@ public class GamePanel extends JPanel implements ActionListener{
 			if (!slowMo && !difficulty.equals(Difficulty.Easy)){
 				addSlowMo();
 			}
-		}
-	}
-
-	public void checkShield() throws InterruptedException {
-		if(x[0] == shieldX && y[0] == shieldY) {
-			shielded = true;
-			shield = false;
-			if (!timer1.isRunning()) {
-				countDown(0);
-				timer1.start();
+			if (!(pointMulti || pointMultied)){
+				addPointMulti();
 			}
 		}
 	}
-	public void checkSlowMo() throws InterruptedException {
+
+	public void checkPowerUp() throws InterruptedException{
+		if(x[0] == shieldX && y[0] == shieldY) {
+			shielded = true;
+			shield = false;
+			if (!shieldTime.isRunning()) {
+				countDown(0);
+				shieldTime.start();
+			}
+		}
 		if(x[0] == slowMoX && y[0] == slowMoY) {
 			timer.setDelay(150);
 			slowMo = false;
-			if (!timer2.isRunning()) {
+			if (!slowMoTimer.isRunning()) {
 				countDown(1);
-				timer2.start();
+				slowMoTimer.start();
+			}
+		}
+		if(x[0] == pointMultiX && y[0] == pointMultiY) {
+			pointMulti = false;
+			pointMultied = true;
+			if (!pointMultiTimer.isRunning()) {
+				countDown(2);
+				pointMultiTimer.start();
 			}
 		}
 	}
@@ -196,25 +230,35 @@ public class GamePanel extends JPanel implements ActionListener{
 			graphics.fillOval(foodX, foodY, UNIT_SIZE, UNIT_SIZE);
 
 			if (shield){
-				graphics.setColor(new Color(135,206,235));
+				graphics.setColor(new Color(65,105,225));
 				graphics.fillOval(shieldX, shieldY, UNIT_SIZE, UNIT_SIZE);
 			}
 			if (slowMo){
 				graphics.setColor(new Color(254,0,0));
 				graphics.fillOval(slowMoX, slowMoY, UNIT_SIZE, UNIT_SIZE);
 			}
+			if (pointMulti){
+				graphics.setColor(Color.YELLOW);
+				graphics.fillOval(pointMultiX, pointMultiY, UNIT_SIZE, UNIT_SIZE);
+			}
 
 
 			//draws the obstacles
 			for(int i = 0; i < numObstacles; i++){
 				graphics.setColor(Color.CYAN);
-				graphics.fillOval(obstaclesX[i], obstaclesY[i], UNIT_SIZE, UNIT_SIZE);
+				graphics.fillRect(obstaclesX[i], obstaclesY[i], UNIT_SIZE, UNIT_SIZE);
 			}
 			
 			//draws the head
-			graphics.setColor(Color.white);
+			if (pointMultied){
+				graphics.setColor(Color.YELLOW);
+			} else {
+				graphics.setColor(Color.white);
+			}
 			graphics.fillRect(x[0], y[0], UNIT_SIZE, UNIT_SIZE);
 
+
+			//draws the body
 			if (shielded){
 				for (int i = 1; i < length; i++) {
 					graphics.setColor(new Color(65,105,225));
@@ -225,11 +269,6 @@ public class GamePanel extends JPanel implements ActionListener{
 					graphics.setColor(new Color(40, 200, 150));
 					graphics.fillRect(x[i], y[i], UNIT_SIZE, UNIT_SIZE);
 				}
-
-			//draws the body
-			for (int i = 1; i < length; i++) {
-				graphics.setColor(new Color(40, 200, 150));
-				graphics.fillRect(x[i], y[i], UNIT_SIZE, UNIT_SIZE);
 			}
 
 			
@@ -238,6 +277,7 @@ public class GamePanel extends JPanel implements ActionListener{
 			graphics.setFont(new Font("Sans serif", Font.ROMAN_BASELINE, 25));
 			FontMetrics metrics = getFontMetrics(graphics.getFont());
 			graphics.drawString("Score: " + foodEaten, (WIDTH - metrics.stringWidth("Score: " + foodEaten)) / 2, graphics.getFont().getSize());
+
 
 		} else {
 			gameOver(graphics);
@@ -277,6 +317,21 @@ public class GamePanel extends JPanel implements ActionListener{
 			slowMo = true;
 		} else {
 			slowMo = false;
+		}
+	}
+	public void addPointMulti(){
+		int frequent = switch (difficulty) {
+			case Difficulty.Easy -> 3;
+			case Difficulty.Medium -> 6;
+			case Difficulty.Hard -> 3;
+			default -> 0;
+		};
+		if (random.nextInt(frequent) == 2){
+			pointMultiX = random.nextInt((int)(WIDTH / UNIT_SIZE))*UNIT_SIZE;
+			pointMultiY = random.nextInt((int)(HEIGHT / UNIT_SIZE))*UNIT_SIZE;
+			pointMulti = true;
+		} else {
+			pointMulti = false;
 		}
 	}
 
@@ -323,7 +378,11 @@ public class GamePanel extends JPanel implements ActionListener{
 		//makes sure the head of the snake doesnt run into a obstacle
 		for (int i = 0; i < numObstacles; i++){
 			if (obstaclesX[i] == x[i] && obstaclesY[i] == y[i]){
-				running = false;
+				if (shielded){
+					shielded = false;
+				} else {
+					running = false;
+				}
 			}
 		}
 		
@@ -358,8 +417,7 @@ public class GamePanel extends JPanel implements ActionListener{
 			checkFood();
 			checkHit();
             try {
-                checkShield();
-				checkSlowMo();
+				checkPowerUp();
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }
