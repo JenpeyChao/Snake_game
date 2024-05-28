@@ -21,15 +21,18 @@ public class GamePanel extends JPanel implements ActionListener{
 	// initial length of the snake
 	int length = 5;
 	int foodEaten;
+	// Coordinate for food/powerUp
 	int foodX, foodY;
 	int shieldX, shieldY;
 	int slowMoX, slowMoY;
 	int pointMultiX, pointMultiY;
+	// boolean indicates if current powerup is active
 	boolean pointMulti = false;
 	boolean pointMultied = false;
 	boolean shield = false;
 	boolean shielded = false;
 	boolean slowMo = false;
+	// List of obstacles Coordinates
 	int[] obstaclesX;
 	int[] obstaclesY;
 	int numObstacles = 0;
@@ -69,9 +72,11 @@ public class GamePanel extends JPanel implements ActionListener{
 						if (startTime[0] < 0) {
 							startTime[0] = System.currentTimeMillis();
 						}
+						// Using internal system time to check if it passed the time limit
 						long now = System.currentTimeMillis();
 						long clockTime = now - startTime[0];
 						if (clockTime >= duration) {
+							// After time pass it will get rid of shield and stop the timer
 							shielded = false;
 							shieldTime.stop();
 						}
@@ -88,6 +93,7 @@ public class GamePanel extends JPanel implements ActionListener{
 						long now = System.currentTimeMillis();
 						long clockTime = now - startTime[0];
 						if (clockTime >= duration) {
+							// After time pass it will return the snake's original speed and stop the timer
 							timer.setDelay(timer.getInitialDelay());
 							slowMoTimer.stop();
 						}
@@ -105,6 +111,7 @@ public class GamePanel extends JPanel implements ActionListener{
 						long now = System.currentTimeMillis();
 						long clockTime = now - startTime[0];
 						if (clockTime >= multiplierDuration) {
+							// After time pass it will get rid of point multiplier and stop the timer
 							pointMultied = false;
 							pointMultiTimer.stop();
 						}
@@ -117,6 +124,7 @@ public class GamePanel extends JPanel implements ActionListener{
 		addFood();
 		addShield();
 		addPointMulti();
+		// In easy mode there won't be slow-mo
 		if (!(difficulty.equals(Difficulty.Easy))) addSlowMo();
 		countDown(0);
 		countDown(1);
@@ -173,6 +181,7 @@ public class GamePanel extends JPanel implements ActionListener{
 		}
 	}
 
+	// After eating food it will spawn a new one but also have a chance of spawning power ups
 	public void checkFood() {
 		if(x[0] == foodX && y[0] == foodY) {
 			length++;
@@ -194,6 +203,7 @@ public class GamePanel extends JPanel implements ActionListener{
 		}
 	}
 
+	// This checks if snake ate a power up
 	public void checkPowerUp() throws InterruptedException{
 		if(x[0] == shieldX && y[0] == shieldY) {
 			shielded = true;
@@ -228,6 +238,7 @@ public class GamePanel extends JPanel implements ActionListener{
 			graphics.setColor(new Color(210, 115, 90));
 			graphics.fillOval(foodX, foodY, UNIT_SIZE, UNIT_SIZE);
 
+			// draws power up if available
 			if (shield){
 				graphics.setColor(new Color(65,105,225));
 				graphics.fillOval(shieldX, shieldY, UNIT_SIZE, UNIT_SIZE);
@@ -283,6 +294,7 @@ public class GamePanel extends JPanel implements ActionListener{
 		}
 	}
 
+	// Generate X and Y where obstacles aren't at
 	public int[] generateDot(){
 		int x = random.nextInt((int)(WIDTH / UNIT_SIZE))*UNIT_SIZE;
 		int y = random.nextInt((int)(WIDTH / UNIT_SIZE))*UNIT_SIZE;
@@ -321,6 +333,7 @@ public class GamePanel extends JPanel implements ActionListener{
 			int[] coordinate = generateDot();
 			shieldX = coordinate[0];
 			shieldY = coordinate[1];
+			// Indicate there is a shield on the board
 			shield = true;
 		} else {
 			shield = false;
@@ -337,6 +350,7 @@ public class GamePanel extends JPanel implements ActionListener{
 			int[] coordinate = generateDot();
 			slowMoX = coordinate[0];
 			slowMoY = coordinate[1];
+			// Indicate there is a slowmo on the board
 			slowMo = true;
 		} else {
 			slowMo = false;
@@ -346,13 +360,14 @@ public class GamePanel extends JPanel implements ActionListener{
 		int frequent = switch (difficulty) {
 			case Difficulty.Easy -> 3;
 			case Difficulty.Medium -> 6;
-			case Difficulty.Hard -> 3;
+			case Difficulty.Hard -> 4;
 			default -> 0;
 		};
 		if (random.nextInt(frequent) == 2){
 			int[] coordinate = generateDot();
 			pointMultiX = coordinate[0];
 			pointMultiY = coordinate[1];
+			// Indicate there is a point multiplier on the board
 			pointMulti = true;
 		} else {
 			pointMulti = false;
@@ -391,6 +406,7 @@ public class GamePanel extends JPanel implements ActionListener{
 		// check if head run into its body
 		for (int i = length; i > 0; i--) {
 			if (x[0] == x[i] && y[0] == y[i]) {
+				// If snake has shield power up, it can hit itself once
 				if (shielded){
 					shielded = false;
 				} else {
@@ -402,6 +418,7 @@ public class GamePanel extends JPanel implements ActionListener{
 		//makes sure the head of the snake doesnt run into a obstacle
 		for (int i = 0; i < numObstacles; i++){
 			if (obstaclesX[i] == x[i] && obstaclesY[i] == y[i]){
+				// If snake has shield power up, it can hit an obstacle once
 				if (shielded){
 					shielded = false;
 				} else {
