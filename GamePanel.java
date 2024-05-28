@@ -26,13 +26,17 @@ public class GamePanel extends JPanel implements ActionListener{
 	int foodY;
 	int shieldX;
 	int shieldY;
+	int slowMoX;
+	int slowMoY;
 	boolean shield = false;
 	boolean shielded = false;
+	boolean slowMo = false;
 	char direction = 'D';
 	boolean running = false;
 	Random random;
 	Timer timer;
 	Timer timer1;
+	Timer timer2;
 	String difficulty;
 	
 	GamePanel(String difficulty) {
@@ -45,34 +49,55 @@ public class GamePanel extends JPanel implements ActionListener{
 		play();
 	}
 
-void countDown() {
-	final long[] startTime = {-1};
-	long duration = switch (difficulty){
-		case Difficulty.Easy -> 6000;
-		case Difficulty.Medium -> 4000;
-		case Difficulty.Hard -> 2000;
-		default -> 0;
-	};
-	timer1 = new Timer(10, new ActionListener() {
-		@Override
-		public void actionPerformed(ActionEvent e) {
-			if (startTime[0] < 0) {
-				startTime[0] = System.currentTimeMillis();
-			}
-			long now = System.currentTimeMillis();
-			long clockTime = now - startTime[0];
-			if (clockTime >= duration) {
-				shielded = false;
-				timer1.stop();
-			}
-		}
-	});
-}
+	void countDown(int num) {
+		final long[] startTime = {-1};
+		long duration = switch (difficulty){
+			case Difficulty.Easy -> 6000;
+			case Difficulty.Medium -> 4000;
+			case Difficulty.Hard -> 2000;
+			default -> 0;
+		};
 
+		switch (num){
+			case 0:
+				timer1 = new Timer(10, new ActionListener() {
+					@Override
+					public void actionPerformed(ActionEvent e) {
+						if (startTime[0] < 0) {
+							startTime[0] = System.currentTimeMillis();
+						}
+						long now = System.currentTimeMillis();
+						long clockTime = now - startTime[0];
+						if (clockTime >= duration) {
+							shielded = false;
+							timer1.stop();
+						}
+					}
+				});
+				break;
+			case 1:
+				timer2 = new Timer(10, new ActionListener() {
+					@Override
+					public void actionPerformed(ActionEvent e) {
+						if (startTime[0] < 0) {
+							startTime[0] = System.currentTimeMillis();
+						}
+						long now = System.currentTimeMillis();
+						long clockTime = now - startTime[0];
+						if (clockTime >= duration) {
+							timer.setDelay(timer.getInitialDelay());
+							timer2.stop();
+						}
+					}
+				});
+		}
+	}
 	public void play() {
 		addFood();
 		addShield();
-		countDown();
+		if (!(difficulty.equals(Difficulty.Easy))) addSlowMo();
+		countDown(0);
+		countDown(1);
 		running = true;
 		
 		int delay = 100;
@@ -123,6 +148,9 @@ void countDown() {
 			if (!(shield || shielded)){
 				addShield();
 			}
+			if (!slowMo && !difficulty.equals(Difficulty.Easy)){
+				addSlowMo();
+			}
 		}
 	}
 
@@ -131,8 +159,18 @@ void countDown() {
 			shielded = true;
 			shield = false;
 			if (!timer1.isRunning()) {
-				countDown();
+				countDown(0);
 				timer1.start();
+			}
+		}
+	}
+	public void checkSlowMo() throws InterruptedException {
+		if(x[0] == slowMoX && y[0] == slowMoY) {
+			timer.setDelay(150);
+			slowMo = false;
+			if (!timer2.isRunning()) {
+				countDown(1);
+				timer2.start();
 			}
 		}
 	}
@@ -146,6 +184,10 @@ void countDown() {
 			if (shield){
 				graphics.setColor(new Color(135,206,235));
 				graphics.fillOval(shieldX, shieldY, UNIT_SIZE, UNIT_SIZE);
+			}
+			if (slowMo){
+				graphics.setColor(new Color(254,0,0));
+				graphics.fillOval(slowMoX, slowMoY, UNIT_SIZE, UNIT_SIZE);
 			}
 
 			graphics.setColor(Color.white);
@@ -186,11 +228,26 @@ void countDown() {
             default -> 0;
         };
         if (random.nextInt(frequent) == 1){
-			shield = true;
 			shieldX = random.nextInt((int)(WIDTH / UNIT_SIZE))*UNIT_SIZE;
 			shieldY = random.nextInt((int)(HEIGHT / UNIT_SIZE))*UNIT_SIZE;
+			shield = true;
 		} else {
 			shield = false;
+		}
+	}
+	public void addSlowMo(){
+		int frequent = switch (difficulty) {
+			case Difficulty.Easy -> 3;
+			case Difficulty.Medium -> 6;
+			case Difficulty.Hard -> 12;
+			default -> 0;
+		};
+		if (random.nextInt(frequent) == 0){
+			slowMoX = random.nextInt((int)(WIDTH / UNIT_SIZE))*UNIT_SIZE;
+			slowMoX = random.nextInt((int)(HEIGHT / UNIT_SIZE))*UNIT_SIZE;
+			slowMo = true;
+		} else {
+			slowMo = false;
 		}
 	}
 
@@ -237,6 +294,7 @@ void countDown() {
 			checkHit();
             try {
                 checkShield();
+				checkSlowMo();
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }
