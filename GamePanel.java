@@ -3,6 +3,7 @@ import java.awt.event.*;
 import javax.swing.*;
 import java.util.Random;
 
+
 import javax.swing.JPanel;
 
 public class GamePanel extends JPanel implements ActionListener{
@@ -36,6 +37,9 @@ public class GamePanel extends JPanel implements ActionListener{
 	int[] obstaclesX;
 	int[] obstaclesY;
 	int numObstacles = 0;
+	int[] poisonFoodX;
+    int[] poisonFoodY;
+    int numPoisonFood = 0;
 	char direction = 'D';
 	boolean running = false;
 	Random random;
@@ -138,21 +142,27 @@ public class GamePanel extends JPanel implements ActionListener{
 				numObstacles = 2;
 				obstaclesX = new int[numObstacles];
 				obstaclesY = new int[numObstacles];
+				numPoisonFood = 1;
 				break;
 			case Difficulty.Medium:
 				delay=100;
 				numObstacles = 5;
 				obstaclesX = new int[numObstacles];
 				obstaclesY = new int[numObstacles];
+				numPoisonFood = 2;
 				break;
 			case Difficulty.Hard:
 				delay=50;
 				numObstacles = 10;
 				obstaclesX = new int[numObstacles];
 				obstaclesY = new int[numObstacles];
+				numPoisonFood = 3;
 				break;
 		}
+		poisonFoodX = new int[numPoisonFood];
+        poisonFoodY = new int[numPoisonFood];
 		addObstacles();
+		addPoisonFood();
 		timer = new Timer(delay, this);
 		timer.start();	
 	}
@@ -201,6 +211,18 @@ public class GamePanel extends JPanel implements ActionListener{
 				addPointMulti();
 			}
 		}
+
+		for (int i = 0; i < numPoisonFood; i++) {
+            if (x[0] == poisonFoodX[i] && y[0] == poisonFoodY[i]) {
+                foodEaten--;
+                if (foodEaten < 0) {
+                    running = false;
+                } else {
+                    poisonFoodX[i] = random.nextInt((int) (WIDTH / UNIT_SIZE)) * UNIT_SIZE;
+                    poisonFoodY[i] = random.nextInt((int) (HEIGHT / UNIT_SIZE)) * UNIT_SIZE;
+                }
+            }
+        }
 	}
 
 	// This checks if snake ate a power up
@@ -264,6 +286,12 @@ public class GamePanel extends JPanel implements ActionListener{
 				graphics.setColor(Color.CYAN);
 				graphics.fillRect(obstaclesX[i], obstaclesY[i], UNIT_SIZE, UNIT_SIZE);
 			}
+
+			// Draw poisonous food
+			for (int i = 0; i < numPoisonFood; i++) {
+                graphics.setColor(Color.RED);
+                graphics.fillOval(poisonFoodX[i], poisonFoodY[i], UNIT_SIZE, UNIT_SIZE);
+            }
 			
 			//draws the head
 			if (pointMultied){
@@ -404,9 +432,26 @@ public class GamePanel extends JPanel implements ActionListener{
 				//or if its not on top on another obstacle
 			}while((obstaclesX[0] == foodX && obstaclesY[0] == foodY) || made);
 		}
-		
-		
 	}
+
+	public void addPoisonFood() {
+        for (int i = 0; i < numPoisonFood; i++) {
+            boolean made;
+            do {
+                made = false;
+                int x = random.nextInt((int) (WIDTH / UNIT_SIZE)) * UNIT_SIZE;
+                int y = random.nextInt((int) (WIDTH / UNIT_SIZE)) * UNIT_SIZE;
+                for (int j = 0; j < i; j++) {
+                    if (x == poisonFoodX[j] && y == poisonFoodY[j]) {
+                        made = true;
+                        break;
+                    }
+                }
+                poisonFoodX[i] = x;
+                poisonFoodY[i] = y;
+            } while ((poisonFoodX[0] == foodX && poisonFoodY[0] == foodY) || made);
+        }
+    }
 	
 	public void checkHit() {
 		// check if head run into its body
