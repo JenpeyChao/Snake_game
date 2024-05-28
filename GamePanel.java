@@ -23,6 +23,8 @@ public class GamePanel extends JPanel implements ActionListener{
 	int foodEaten;
 	int foodX;
 	int foodY;
+	int[] obstaclesX = new int[6];
+	int[] obstaclesY = new int[6];
 	char direction = 'D';
 	boolean running = false;
 	Random random;
@@ -39,6 +41,7 @@ public class GamePanel extends JPanel implements ActionListener{
 	
 	public void play() {
 		addFood();
+		addObstacles();
 		running = true;
 		
 		timer = new Timer(80, this);
@@ -83,6 +86,9 @@ public class GamePanel extends JPanel implements ActionListener{
 			graphics.setColor(new Color(210, 115, 90));
 			graphics.fillOval(foodX, foodY, UNIT_SIZE, UNIT_SIZE);
 			
+			graphics.setColor(Color.CYAN);
+			graphics.fillOval(obstaclesX[0], obstaclesY[0], UNIT_SIZE, UNIT_SIZE);
+
 			graphics.setColor(Color.white);
 			graphics.fillRect(x[0], y[0], UNIT_SIZE, UNIT_SIZE);
 			
@@ -105,6 +111,16 @@ public class GamePanel extends JPanel implements ActionListener{
 		foodX = random.nextInt((int)(WIDTH / UNIT_SIZE))*UNIT_SIZE;
 		foodY = random.nextInt((int)(HEIGHT / UNIT_SIZE))*UNIT_SIZE;
 	}
+	public void addObstacles(){
+		do{
+			obstaclesX[0] = random.nextInt((int)(WIDTH / UNIT_SIZE))*UNIT_SIZE; //X
+			obstaclesY[0] = random.nextInt((int)(WIDTH / UNIT_SIZE))*UNIT_SIZE; //Y
+			//need to check if the spot for the obstacle isnt on the food
+			//or if its not on top on another obstacle
+		}while(obstaclesX[0] == foodX || obstaclesY[0] == foodY);
+		System.out.println(obstaclesX[0]);
+		
+	}
 	
 	public void checkHit() {
 		// check if head run into its body
@@ -113,7 +129,9 @@ public class GamePanel extends JPanel implements ActionListener{
 				running = false;
 			}
 		}
-		
+		if (obstaclesX[0] == x[0] && obstaclesY[0] == y[0]){
+			running = false;
+		}
 		// check if head run into walls
 		if (x[0] < 0 || x[0] > WIDTH || y[0] < 0 || y[0] > HEIGHT) {
 			running = false;
@@ -178,42 +196,4 @@ public class GamePanel extends JPanel implements ActionListener{
 		}
 	}
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
