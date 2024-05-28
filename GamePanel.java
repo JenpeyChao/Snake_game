@@ -169,9 +169,12 @@ public class GamePanel extends JPanel implements ActionListener{
 				running = false;
 			}
 		}
-		if (obstaclesX[0] == x[0] && obstaclesY[0] == y[0]){
-			running = false;
+		for (int i = 0; i < numObstacles; i++){
+			if (obstaclesX[i] == x[i] && obstaclesY[i] == y[i]){
+				running = false;
+			}
 		}
+		
 		// check if head run into walls
 		if (x[0] < 0 || x[0] > WIDTH || y[0] < 0 || y[0] > HEIGHT) {
 			running = false;
