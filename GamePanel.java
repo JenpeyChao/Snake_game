@@ -289,7 +289,7 @@ public class GamePanel extends JPanel implements ActionListener{
 
 			// Draw poisonous food
 			for (int i = 0; i < numPoisonFood; i++) {
-                graphics.setColor(Color.RED);
+                graphics.setColor(new Color(138,43,226));
                 graphics.fillOval(poisonFoodX[i], poisonFoodY[i], UNIT_SIZE, UNIT_SIZE);
             }
 			
