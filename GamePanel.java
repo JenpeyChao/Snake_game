@@ -103,7 +103,7 @@ public class GamePanel extends JPanel implements ActionListener{
 
 			graphics.setColor(Color.white);
 			graphics.fillRect(x[0], y[0], UNIT_SIZE, UNIT_SIZE);
-
+			
 			if (shielded){
 				for (int i = 1; i < length; i++) {
 					graphics.setColor(new Color(65,105,225));
