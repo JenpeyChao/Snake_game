@@ -31,8 +31,10 @@ public class GamePanel extends JPanel implements ActionListener{
 	boolean running = false;
 	Random random;
 	Timer timer;
-
-	GamePanel() {
+	String difficulty;
+	
+	GamePanel(String difficulty) {
+		this.difficulty = difficulty;
 		random = new Random();
 		this.setPreferredSize(new Dimension(WIDTH, HEIGHT));
 		this.setBackground(Color.DARK_GRAY);
@@ -45,9 +47,21 @@ public class GamePanel extends JPanel implements ActionListener{
 		addFood();
 		addShield();
 		running = true;
-
-		timer = new Timer(80, this);
-		timer.start();
+		
+		int delay = 100;
+		switch (difficulty) {
+			case Difficulty.Easy:
+				delay=150;
+				break;
+			case Difficulty.Medium:
+				delay=100;
+				break;
+			case Difficulty.Hard:
+				delay=50;
+				break;
+		}
+		timer = new Timer(delay, this);
+		timer.start();	
 	}
 
 	@Override
