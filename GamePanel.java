@@ -21,8 +21,7 @@ public class GamePanel extends JPanel implements ActionListener{
 	// initial length of the snake
 	int length = 5;
 	int foodEaten;
-	int foodX;
-	int foodY;
+	int foodX, foodY;
 	int shieldX, shieldY;
 	int slowMoX, slowMoY;
 	int pointMultiX, pointMultiY;
