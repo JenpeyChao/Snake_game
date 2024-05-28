@@ -44,7 +44,6 @@ public class GamePanel extends JPanel implements ActionListener{
 	
 	public void play() {
 		addFood();
-		addObstacles();
 		running = true;
 		
 		int delay = 100;
@@ -57,17 +56,18 @@ public class GamePanel extends JPanel implements ActionListener{
 				break;
 			case Difficulty.Medium:
 				delay=100;
+				numObstacles = 5;
 				obstaclesX = new int[numObstacles];
 				obstaclesY = new int[numObstacles];
-				numObstacles = 5;
 				break;
 			case Difficulty.Hard:
 				delay=50;
+				numObstacles = 10;
 				obstaclesX = new int[numObstacles];
 				obstaclesY = new int[numObstacles];
-				numObstacles = 10;
 				break;
 		}
+		addObstacles();
 		timer = new Timer(delay, this);
 		timer.start();	
 	}
@@ -109,9 +109,12 @@ public class GamePanel extends JPanel implements ActionListener{
 		if (running) {
 			graphics.setColor(new Color(210, 115, 90));
 			graphics.fillOval(foodX, foodY, UNIT_SIZE, UNIT_SIZE);
+
+			for(int i = 0; i < numObstacles; i++){
+				graphics.setColor(Color.CYAN);
+				graphics.fillOval(obstaclesX[i], obstaclesY[i], UNIT_SIZE, UNIT_SIZE);
+			}
 			
-			graphics.setColor(Color.CYAN);
-			graphics.fillOval(obstaclesX[0], obstaclesY[0], UNIT_SIZE, UNIT_SIZE);
 
 			graphics.setColor(Color.white);
 			graphics.fillRect(x[0], y[0], UNIT_SIZE, UNIT_SIZE);
@@ -136,13 +139,26 @@ public class GamePanel extends JPanel implements ActionListener{
 		foodY = random.nextInt((int)(HEIGHT / UNIT_SIZE))*UNIT_SIZE;
 	}
 	public void addObstacles(){
-		do{
-			obstaclesX[0] = random.nextInt((int)(WIDTH / UNIT_SIZE))*UNIT_SIZE; //X
-			obstaclesY[0] = random.nextInt((int)(WIDTH / UNIT_SIZE))*UNIT_SIZE; //Y
-			//need to check if the spot for the obstacle isnt on the food
-			//or if its not on top on another obstacle
-		}while(obstaclesX[0] == foodX || obstaclesY[0] == foodY);
-		System.out.println(obstaclesX[0]);
+		for(int i = 0; i < numObstacles; i++){
+			boolean made;
+			do{
+				made = false;
+				int x = random.nextInt((int)(WIDTH / UNIT_SIZE))*UNIT_SIZE;
+				int y = random.nextInt((int)(WIDTH / UNIT_SIZE))*UNIT_SIZE;
+				//make sure the obstacle that was made isnt already made
+				for(int j = 0; j<i ; j++){
+					if (x == obstaclesX[j] && y == obstaclesY[j]) {
+						made = true;
+						break;
+					}
+				}
+				obstaclesX[i] = x; //X
+				obstaclesY[i] = y; //Y
+				//need to check if the spot for the obstacle isnt on the food
+				//or if its not on top on another obstacle
+			}while((obstaclesX[0] == foodX && obstaclesY[0] == foodY) || made);
+		}
+		
 		
 	}
 	
