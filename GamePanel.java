@@ -23,6 +23,10 @@ public class GamePanel extends JPanel implements ActionListener{
 	int foodEaten;
 	int foodX;
 	int foodY;
+	int shieldX;
+	int shieldY;
+	boolean shield = false;
+	boolean shielded = false;
 	char direction = 'D';
 	boolean running = false;
 	Random random;
@@ -39,6 +43,7 @@ public class GamePanel extends JPanel implements ActionListener{
 	
 	public void play() {
 		addFood();
+		addShield();
 		running = true;
 		
 		timer = new Timer(80, this);
@@ -74,6 +79,14 @@ public class GamePanel extends JPanel implements ActionListener{
 			length++;
 			foodEaten++;
 			addFood();
+			addShield();
+		}
+	}
+
+	public void checkShield(){
+		if(x[0] == shieldX && y[0] == shieldY) {
+			shielded = true;
+			addShield();
 		}
 	}
 	
@@ -82,6 +95,11 @@ public class GamePanel extends JPanel implements ActionListener{
 		if (running) {
 			graphics.setColor(new Color(210, 115, 90));
 			graphics.fillOval(foodX, foodY, UNIT_SIZE, UNIT_SIZE);
+
+			if (shield){
+				graphics.setColor(new Color(135,206,235));
+				graphics.fillOval(shieldX, shieldY, UNIT_SIZE, UNIT_SIZE);
+			}
 			
 			graphics.setColor(Color.white);
 			graphics.fillRect(x[0], y[0], UNIT_SIZE, UNIT_SIZE);
@@ -104,6 +122,16 @@ public class GamePanel extends JPanel implements ActionListener{
 	public void addFood() {
 		foodX = random.nextInt((int)(WIDTH / UNIT_SIZE))*UNIT_SIZE;
 		foodY = random.nextInt((int)(HEIGHT / UNIT_SIZE))*UNIT_SIZE;
+	}
+
+	public void addShield(){
+		if (random.nextInt(10) == 1){
+			shield = true;
+			shieldX = random.nextInt((int)(WIDTH / UNIT_SIZE))*UNIT_SIZE;
+			shieldY = random.nextInt((int)(HEIGHT / UNIT_SIZE))*UNIT_SIZE;
+		} else {
+			shield = false;
+		}
 	}
 	
 	public void checkHit() {
@@ -143,6 +171,7 @@ public class GamePanel extends JPanel implements ActionListener{
 			move();
 			checkFood();
 			checkHit();
+			checkShield();
 		}
 		repaint();
 	}
