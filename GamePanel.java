@@ -2,6 +2,7 @@ import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
 import java.util.Random;
+import java.util.TimerTask;
 
 import javax.swing.JPanel;
 
@@ -31,6 +32,7 @@ public class GamePanel extends JPanel implements ActionListener{
 	boolean running = false;
 	Random random;
 	Timer timer;
+	Timer timer1;
 	String difficulty;
 	
 	GamePanel(String difficulty) {
@@ -43,9 +45,34 @@ public class GamePanel extends JPanel implements ActionListener{
 		play();
 	}
 
+void countDown() {
+	final long[] startTime = {-1};
+	long duration = switch (difficulty){
+		case Difficulty.Easy -> 6000;
+		case Difficulty.Medium -> 4000;
+		case Difficulty.Hard -> 2000;
+		default -> 0;
+	};
+	timer1 = new Timer(10, new ActionListener() {
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			if (startTime[0] < 0) {
+				startTime[0] = System.currentTimeMillis();
+			}
+			long now = System.currentTimeMillis();
+			long clockTime = now - startTime[0];
+			if (clockTime >= duration) {
+				shielded = false;
+				timer1.stop();
+			}
+		}
+	});
+}
+
 	public void play() {
 		addFood();
 		addShield();
+		countDown();
 		running = true;
 		
 		int delay = 100;
@@ -93,14 +120,20 @@ public class GamePanel extends JPanel implements ActionListener{
 			length++;
 			foodEaten++;
 			addFood();
-			addShield();
+			if (!(shield || shielded)){
+				addShield();
+			}
 		}
 	}
 
-	public void checkShield(){
+	public void checkShield() throws InterruptedException {
 		if(x[0] == shieldX && y[0] == shieldY) {
 			shielded = true;
-			addShield();
+			shield = false;
+			if (!timer1.isRunning()) {
+				countDown();
+				timer1.start();
+			}
 		}
 	}
 
@@ -146,7 +179,13 @@ public class GamePanel extends JPanel implements ActionListener{
 	}
 
 	public void addShield(){
-		if (random.nextInt(10) == 1){
+		int frequent = switch (difficulty) {
+            case Difficulty.Easy -> 3;
+            case Difficulty.Medium -> 6;
+            case Difficulty.Hard -> 12;
+            default -> 0;
+        };
+        if (random.nextInt(frequent) == 1){
 			shield = true;
 			shieldX = random.nextInt((int)(WIDTH / UNIT_SIZE))*UNIT_SIZE;
 			shieldY = random.nextInt((int)(HEIGHT / UNIT_SIZE))*UNIT_SIZE;
@@ -196,8 +235,12 @@ public class GamePanel extends JPanel implements ActionListener{
 			move();
 			checkFood();
 			checkHit();
-			checkShield();
-		}
+            try {
+                checkShield();
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+        }
 		repaint();
 	}
 
