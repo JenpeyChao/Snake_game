@@ -24,9 +24,9 @@ public class GamePanel extends JPanel implements ActionListener{
 	int foodEaten;
 	// Coordinate for food/powerUp
 	int foodX, foodY;
-	int shieldX, shieldY;
-	int slowMoX, slowMoY;
-	int pointMultiX, pointMultiY;
+	int shieldX, shieldY = -1;
+	int slowMoX, slowMoY = -1;
+	int pointMultiX, pointMultiY = -1;
 	// boolean indicates if current powerup is active
 	boolean pointMulti = false;
 	boolean pointMultied = false;
@@ -230,6 +230,8 @@ public class GamePanel extends JPanel implements ActionListener{
 		if(x[0] == shieldX && y[0] == shieldY) {
 			shielded = true;
 			shield = false;
+			shieldX = -1;
+			shieldY = -1;
 			if (!shieldTime.isRunning()) {
 				countDown(0);
 				shieldTime.start();
@@ -238,6 +240,8 @@ public class GamePanel extends JPanel implements ActionListener{
 		if(x[0] == slowMoX && y[0] == slowMoY) {
 			timer.setDelay(150);
 			slowMo = false;
+			slowMoX = -1;
+			slowMoY = -1;
 			if (!slowMoTimer.isRunning()) {
 				countDown(1);
 				slowMoTimer.start();
@@ -246,6 +250,8 @@ public class GamePanel extends JPanel implements ActionListener{
 		if(x[0] == pointMultiX && y[0] == pointMultiY) {
 			pointMulti = false;
 			pointMultied = true;
+			pointMultiX = -1;
+			pointMultiY = -1;
 			if (!pointMultiTimer.isRunning()) {
 				countDown(2);
 				pointMultiTimer.start();
@@ -283,7 +289,7 @@ public class GamePanel extends JPanel implements ActionListener{
 
 			// Draw poisonous food
 			for (int i = 0; i < numPoisonFood; i++) {
-                graphics.setColor(Color.RED);
+                graphics.setColor(new Color(138,43,226));
                 graphics.fillOval(poisonFoodX[i], poisonFoodY[i], UNIT_SIZE, UNIT_SIZE);
             }
 			
