@@ -284,12 +284,34 @@ public class GamePanel extends JPanel implements ActionListener{
 		}
 	}
 
+	public int[] generateDot(){
+		int x = random.nextInt((int)(WIDTH / UNIT_SIZE))*UNIT_SIZE;
+		int y = random.nextInt((int)(WIDTH / UNIT_SIZE))*UNIT_SIZE;
+		while (true){
+			boolean flag = true;
+			for (int i = 0; i < numObstacles; i++){
+				if (obstaclesX[i] == foodX && obstaclesY[i] == foodY){
+					x = random.nextInt((int)(WIDTH / UNIT_SIZE))*UNIT_SIZE;
+					y = random.nextInt((int)(HEIGHT / UNIT_SIZE))*UNIT_SIZE;
+					flag = false;
+					break;
+				}
+
+			}
+			if (flag){
+				break;
+			}
+		}
+		return new int[]{x, y};
+	}
 	public void addFood() {
-		foodX = random.nextInt((int)(WIDTH / UNIT_SIZE))*UNIT_SIZE;
-		foodY = random.nextInt((int)(HEIGHT / UNIT_SIZE))*UNIT_SIZE;
+		int[] coordinate = generateDot();
+		foodX = coordinate[0];
+		foodY = coordinate[1];
 	}
 
 	public void addShield(){
+
 		int frequent = switch (difficulty) {
             case Difficulty.Easy -> 3;
             case Difficulty.Medium -> 6;
@@ -297,8 +319,9 @@ public class GamePanel extends JPanel implements ActionListener{
             default -> 0;
         };
         if (random.nextInt(frequent) == 1){
-			shieldX = random.nextInt((int)(WIDTH / UNIT_SIZE))*UNIT_SIZE;
-			shieldY = random.nextInt((int)(HEIGHT / UNIT_SIZE))*UNIT_SIZE;
+			int[] coordinate = generateDot();
+			shieldX = coordinate[0];
+			shieldY = coordinate[1];
 			shield = true;
 		} else {
 			shield = false;
@@ -312,8 +335,9 @@ public class GamePanel extends JPanel implements ActionListener{
 			default -> 0;
 		};
 		if (random.nextInt(frequent) == 0){
-			slowMoX = random.nextInt((int)(WIDTH / UNIT_SIZE))*UNIT_SIZE;
-			slowMoX = random.nextInt((int)(HEIGHT / UNIT_SIZE))*UNIT_SIZE;
+			int[] coordinate = generateDot();
+			slowMoX = coordinate[0];
+			slowMoY = coordinate[1];
 			slowMo = true;
 		} else {
 			slowMo = false;
@@ -327,8 +351,9 @@ public class GamePanel extends JPanel implements ActionListener{
 			default -> 0;
 		};
 		if (random.nextInt(frequent) == 2){
-			pointMultiX = random.nextInt((int)(WIDTH / UNIT_SIZE))*UNIT_SIZE;
-			pointMultiY = random.nextInt((int)(HEIGHT / UNIT_SIZE))*UNIT_SIZE;
+			int[] coordinate = generateDot();
+			pointMultiX = coordinate[0];
+			pointMultiY = coordinate[1];
 			pointMulti = true;
 		} else {
 			pointMulti = false;
