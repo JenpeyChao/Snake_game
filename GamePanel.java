@@ -104,9 +104,16 @@ public class GamePanel extends JPanel implements ActionListener{
 			graphics.setColor(Color.white);
 			graphics.fillRect(x[0], y[0], UNIT_SIZE, UNIT_SIZE);
 			
-			for (int i = 1; i < length; i++) {
-				graphics.setColor(new Color(40, 200, 150));
-				graphics.fillRect(x[i], y[i], UNIT_SIZE, UNIT_SIZE);
+			if (shielded){
+				for (int i = 1; i < length; i++) {
+					graphics.setColor(new Color(65,105,225));
+					graphics.fillRect(x[i], y[i], UNIT_SIZE, UNIT_SIZE);
+				}
+			} else {
+				for (int i = 1; i < length; i++) {
+					graphics.setColor(new Color(40, 200, 150));
+					graphics.fillRect(x[i], y[i], UNIT_SIZE, UNIT_SIZE);
+				}
 			}
 			
 			graphics.setColor(Color.white);
@@ -138,7 +145,11 @@ public class GamePanel extends JPanel implements ActionListener{
 		// check if head run into its body
 		for (int i = length; i > 0; i--) {
 			if (x[0] == x[i] && y[0] == y[i]) {
-				running = false;
+				if (shielded){
+					shielded = false;
+				} else {
+					running = false;
+				}
 			}
 		}
 		

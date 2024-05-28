@@ -5,7 +5,10 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="26b87968-f6d8-45db-b95d-621fdfb48c5e" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/GamePanel.java" beforeDir="false" afterPath="$PROJECT_DIR$/GamePanel.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/GenSpark-Collab/GamePanel$MyKeyAdapter.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/GenSpark-Collab/GamePanel$MyKeyAdapter.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/GenSpark-Collab/GamePanel.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/GenSpark-Collab/GamePanel.class" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
