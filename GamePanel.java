@@ -23,8 +23,9 @@ public class GamePanel extends JPanel implements ActionListener{
 	int foodEaten;
 	int foodX;
 	int foodY;
-	int[] obstaclesX = new int[6];
-	int[] obstaclesY = new int[6];
+	int[] obstaclesX;
+	int[] obstaclesY;
+	int numObstacles = 0;
 	char direction = 'D';
 	boolean running = false;
 	Random random;
@@ -50,12 +51,21 @@ public class GamePanel extends JPanel implements ActionListener{
 		switch (difficulty) {
 			case Difficulty.Easy:
 				delay=150;
+				numObstacles = 2;
+				obstaclesX = new int[numObstacles];
+				obstaclesY = new int[numObstacles];
 				break;
 			case Difficulty.Medium:
 				delay=100;
+				obstaclesX = new int[numObstacles];
+				obstaclesY = new int[numObstacles];
+				numObstacles = 5;
 				break;
 			case Difficulty.Hard:
 				delay=50;
+				obstaclesX = new int[numObstacles];
+				obstaclesY = new int[numObstacles];
+				numObstacles = 10;
 				break;
 		}
 		timer = new Timer(delay, this);
